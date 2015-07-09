@@ -25,7 +25,7 @@ def getRadius(area):
 
 
 villages = "http://events.ccc.de/camp/2015/wiki/index.php?title=Special%3AAsk&q=%5B%5BHas+x-coordinate%3A%3A%210%5D%5D+OR+%5B%5BHas+y-coordinate%3A%3A%210%5D%5D&po=%3FHas+x-coordinate%0D%0A%3FHas+y-coordinate%0D%0A%3FSize+needed+min%0D%0A%3FSize+needed+max%0D%0A&eq=yes&p%5Bformat%5D=csv&sort%5B0%5D=Has+x-coordinate&order%5B0%5D=ASC&sort_num=&order_num=ASC&p%5Blimit%5D=100&p%5Boffset%5D=&p%5Blink%5D=all&p%5Bsort%5D=Has+x-coordinate&p%5Border%5D%5Basc%5D=1&p%5Bheaders%5D=show&p%5Bmainlabel%5D=&p%5Bintro%5D=&p%5Boutro%5D=&p%5Bsearchlabel%5D=%E2%80%A6+further+results&p%5Bdefault%5D=&p%5Bsep%5D=%2C&p%5Bfilename%5D=result.csv&eq=yes"
-radius = 1
+radius = 3
 meterX = 893 # the width in meters of the backgroundimage
 meterY = 612 # the height in meters of the backgroundimage
 font = ImageFont.truetype("/Library/Fonts/Arial.ttf",12) # path to a font you fancy
@@ -42,8 +42,6 @@ width, height = mapOnlyVillages.size
 pixelPerMeterX = width / 893.0
 pixelPerMeterY = height / 612.0
 
-print pixelPerMeterX, pixelPerMeterY
-
 for line in data.splitlines():
 	minRadius = 0
 	maxRadius = 0
@@ -51,7 +49,7 @@ for line in data.splitlines():
 	if is_number(values[1]) and is_number(values[2]):
 		villageName = values[0]
 		villageName = villageName.strip('"') # strip unnecessary stuff
-		villageName = villageName.strip("Village:") # strip unnecessary
+		villageName = villageName[8::] # strip unnecessary
 		villageX = float(values[1])
 		villageY = float(values[2])
 		
@@ -72,24 +70,29 @@ for line in data.splitlines():
 				counter = counter + 1
 			
 			values[4] = values[5]
+			
 
+		villageMinSize = 0
+		villageMaxSize = 0
 		# valid sizes
-		if is_int(values[3]) and is_int(values[4]):
+		if is_int(values[3]):
 			villageMinSize = int(values[3])
+		if is_int(values[4]):
 			villageMaxSize = int(values[4])
 		
-			if villageMaxSize < villageMinSize:
-				tmp = villageMinSize
-				villageMinSize = villageMaxSize
-				villageMaxSize = tmp
-			
-			minRadius = getRadius(villageMinSize)
-			maxRadius = getRadius(villageMaxSize)
-			
-			# draw max area	
-			drawWithSizes.ellipse(((xPos - (maxRadius * pixelPerMeterX)), (yPos - (maxRadius * pixelPerMeterY)), (xPos + (maxRadius * pixelPerMeterX)), (yPos + (maxRadius * pixelPerMeterY))), fill=(255, 0, 0, 128))
-			# draw min area
-			drawWithSizes.ellipse(((xPos - (minRadius * pixelPerMeterX)), (yPos - (minRadius * pixelPerMeterY)), (xPos + (minRadius * pixelPerMeterX)), (yPos + (minRadius * pixelPerMeterY))), fill=(0, 255, 0, 128))
+		
+		if villageMaxSize < villageMinSize and not villageMaxSize == 0:
+			tmp = villageMinSize
+			villageMinSize = villageMaxSize
+			villageMaxSize = tmp
+		
+		minRadius = getRadius(villageMinSize)
+		maxRadius = getRadius(villageMaxSize)
+		
+		# draw max area	
+		drawWithSizes.ellipse(((xPos - (maxRadius * pixelPerMeterX)), (yPos - (maxRadius * pixelPerMeterY)), (xPos + (maxRadius * pixelPerMeterX)), (yPos + (maxRadius * pixelPerMeterY))), fill=(255, 0, 0, 128))
+		# draw min area
+		drawWithSizes.ellipse(((xPos - (minRadius * pixelPerMeterX)), (yPos - (minRadius * pixelPerMeterY)), (xPos + (minRadius * pixelPerMeterX)), (yPos + (minRadius * pixelPerMeterY))), fill=(0, 255, 0, 128))
 		
 
 			
